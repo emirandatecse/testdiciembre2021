@@ -1,0 +1,40 @@
+--CREAR LA RED
+-----------------------------
+docker network create -d bridge networktest
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+--PASOS PARA INSTALAR EL SQL SERVER
+---------------------------------------
+
+--Paso 1
+docker pull mcr.microsoft.com/mssql/server
+
+--Paso 2
+docker run --name sqlserverlocal -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=$Abc123abC$" -p 1433:1433 -d mcr.microsoft.com/mssql/server:latest
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------
+--INSTALAR EL API
+-----------------------------
+
+docker build -t webapiexchangecurrency .
+
+docker run -d -p 5000:80 --name apicambiomoneda webapiexchangecurrency 
+
+-----------------------------
+-- INSTALAR PASOS LA WEB
+-----------------------------
+
+docker build -t webnextcambiomoneda .
+
+docker run -d -p 3000:3000 --name webcambiomoneda webnextcambiomoneda 
+
+
+-----------------------------
+-- PASOS PARA AGREGAR NETWORK
+-----------------------------
+docker network connect networktest sqlserverlocal
+docker network connect networktest apicambiomoneda
+docker network connect networktest webcambiomoneda
+
+
+docker container inspect apicambiomoneda
